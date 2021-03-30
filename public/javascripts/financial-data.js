@@ -1,18 +1,27 @@
-let axisX;
-let axisY;
-let apiUrl = "http://api.coindesk.com/v1/bpi/historical/close.json";
+const apiUrl = "http://api.coindesk.com/v1/bpi/historical/close.json";
 let start;
 let end;
 
-const startInput = document.getElementById("from");
-const endInput = document.getElementById("to");
+const startInput = document.getElementById("start");
+const endInput = document.getElementById("end");
 
 axios.get(apiUrl).then((response) => {
   console.log(response.data);
-  axisX = Object.keys(response.data.bpi);
-  axisY = Object.values(response.data.bpi);
+  let axisX = Object.keys(response.data.bpi);
+  let axisY = Object.values(response.data.bpi);
   drawChart(axisX, axisY);
 });
+
+function getHistoricalData() {
+  if (!end || !start) {
+    return;
+  }
+  axios.get(`${apiUrl}?start=${start}?end=${end}`).then((response2) => {
+    const labels2 = Object.keys(response2.data.bpi);
+    const data2 = Object.values(response2.data.bpi);
+    drawChart(labels2, data2);
+  });
+}
 
 function drawChart(labels, data) {
   const ctx = document.getElementById("myChart");
@@ -30,49 +39,12 @@ function drawChart(labels, data) {
   });
 }
 
-function getHistoricalDate() {
-  if (!end || !start) {
-    return;
-  }
-  axios.get(`${apiUrl}?start=${start}?end=${end}`).then((axiosResponse2) => {
-    const labels = Object.keys(axiosResponse2.data.bpi);
-    const data = Object.values(axiosResponse2.data.bpi);
-    drawChart(labels, data);
-  });
-}
-
 startInput.onchange = (event) => {
-  console.log(event.target.value);
   start = event.target.value;
-  getHistoricalDate();
+  getHistoricalData();
 };
 
 endInput.onchange = (event) => {
-  console.log(event.target.value);
   end = event.target.value;
-  getHistoricalDate();
+  getHistoricalData();
 };
-
-// const changeDates = () => {
-//   axios
-//     .get(
-//       `http://api.coindesk.com/v1/bpi/historical/close.json?start=${fromValue}&end=${toValue}`
-//     )
-//     .then((response) => {
-//       axisX = Object.keys(response.data.bpi);
-//       axisY = Object.values(response.data.bpi);
-//       drawChart(axisX, axisY);
-//     });
-// };
-
-// const dateFrom = document.getElementById("from");
-// dateFrom.addEventListener("onclick", () => {
-//   fromValue = document.getElementById("from").value;
-//   changeDates();
-// });
-
-// const dateTo = document.getElementById("to");
-// dateTo.addEventListener("onclick", () => {
-//   toValue = document.getElementById("to").value;
-//   changeDates();
-// });
