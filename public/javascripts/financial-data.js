@@ -1,9 +1,10 @@
 const apiUrl = "http://api.coindesk.com/v1/bpi/historical/close.json";
-let start;
-let end;
-
 const startInput = document.getElementById("start");
 const endInput = document.getElementById("end");
+const currencyInput = document.getElementById("currency");
+let currency = currencyInput.value;
+let start;
+let end;
 
 axios.get(apiUrl).then((response) => {
   console.log(response.data);
@@ -16,10 +17,18 @@ function getHistoricalData() {
   if (!end || !start) {
     return;
   }
-  axios.get(`${apiUrl}?start=${start}?end=${end}`).then((response2) => {
+  axios.get(`${apiUrl}?start=${start}&end=${end}`).then((response2) => {
     const labels2 = Object.keys(response2.data.bpi);
     const data2 = Object.values(response2.data.bpi);
     drawChart(labels2, data2);
+  });
+}
+
+function getCurrencyData() {
+  axios.get(`${apiUrl}?currency=${currency}`).then((response3) => {
+    const labels3 = Object.keys(response3.data.bpi);
+    const data3 = Object.values(response3.data.bpi);
+    drawChart(labels3, data3);
   });
 }
 
@@ -47,4 +56,9 @@ startInput.onchange = (event) => {
 endInput.onchange = (event) => {
   end = event.target.value;
   getHistoricalData();
+};
+
+currencyInput.onchange = (event) => {
+  currency = event.target.value;
+  getCurrencyData();
 };
